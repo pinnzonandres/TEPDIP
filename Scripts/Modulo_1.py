@@ -39,7 +39,7 @@ rubro_names = {'13':"ReSA",
               '23':'Colombia Mayor'}
 
 dir_names = {'Inclusión Productiva':['13','16','17','21','22','25'],
-        'Infraestructura':['14'],
+        'Infraestructura Social y Habitat':['14'],
         'Transferencias Monetarias':['12','20','23']}
 
 def find_key(dictionary, value):
