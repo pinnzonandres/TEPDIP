@@ -74,7 +74,7 @@ def run_code():
         except:
             pass
         
-    resultados['dates'] = pd.DataFrame({'Fecha':[fecha.strftime("%y-%m-%d")]})
+    resultados['dates'] = pd.DataFrame({'Fecha':[fecha.strftime("%Y-%m-%d")]})
     
     return resultados
 

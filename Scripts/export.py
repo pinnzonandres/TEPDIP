@@ -19,6 +19,8 @@ def set_path(nombre_folder):
     
     return base_tablero_path, archivos_modificados_path, archivos_formato_excel_path
 
+
+
 def export_data(bases_de_datos):
     path1, path2, path3 = set_path(bases_de_datos['dates']['Fecha'].values[0])
     
@@ -34,6 +36,10 @@ def export_data(bases_de_datos):
              '7_Base_Compromisos',
              '7.1_Base_Compromisos_Reservas', 
              '8_BASE_RP_OP', '5_Reporte General', '6_Base_Rubros']
+
+    bases_tablero = ['dates','RG','Base_Rubros','Base_Compromisos',
+             'Base_Compromisos_Reservas','BASE_RP_OP']
+    nombres_tablero = ['Fecha_Tablero','1_Reporte_General','2_Balance Proyectos','3_Base Compromisos','3.1_Base_Compromisis_Reservas','4_Base_RP_OP']
     
     for pair in zip(bases, nombres):
         try:
@@ -41,3 +47,9 @@ def export_data(bases_de_datos):
             bases_de_datos[pair[0]].to_excel(path_f+'.xlsx', index = False, sheet_name =pair[1])
         except:
             print('No se logró exportar la base: ', pair[1])
+
+    path_to_base = os.path.join(path1,'Base_Tablero_Ejecución Presupuestal'+'.xlsx')
+    writer = pd.ExcelWriter(path_to_base, engine='xlsxwriter')
+    for pair in zip(bases_tablero,nombres_tablero):
+        bases_de_datos[pair[0]].to_excel(writer, sheet_name= pair[1], index= False)
+    writer.close()
