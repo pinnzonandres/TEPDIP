@@ -23,8 +23,8 @@ archivos = {
         'RP_FIP'
         ],
     'Oblig':[
-        'OB',
-        'OB_FIP'
+        'Oblig',
+        'Oblig_FIP'
         ],
     'OP':[
         'OP',
@@ -34,8 +34,8 @@ archivos = {
     'Reservas':[
         'RP_Reservas',
         'RP_FIP_Reservas',
-        'OB_Reservas',
-        'OB_FIP_Reservas',
+        'Oblig_Reservas',
+        'Oblig_FIP_Reservas',
         'OP_Reservas',
         'OP_FIP_Reservas'
         ]

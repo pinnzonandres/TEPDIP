@@ -64,6 +64,9 @@ cols_to_num ={'CDP':['Valor Inicial','Valor Operaciones','Valor Actual','Saldo p
               'RP':['Valor Inicial', 'Valor Operaciones', 'Valor Actual', 'Saldo por Utilizar'],
               'Oblig':['Valor Inicial', 'Valor Operaciones','Valor Actual.1','Saldo por Utilizar'],
               'OP':['Valor Pesos', 'Valor Moneda', 'Valor Reintegrado Pesos', 'Valor Reintegrado Moneda'],
+              'RP_Reservas':['Valor Inicial', 'Valor Operaciones', 'Valor Actual', 'Saldo por Utilizar'],
+              'Oblig_Reservas':['Valor Inicial', 'Valor Operaciones','Valor Actual.1','Saldo por Utilizar'],
+              'OP_Reservas':['Valor Pesos', 'Valor Moneda', 'Valor Reintegrado Pesos', 'Valor Reintegrado Moneda']
               }
 
 def clean_bases(df1, dffip, tema):
@@ -71,7 +74,7 @@ def clean_bases(df1, dffip, tema):
     cl1 = str_to_float(df1, cols)
     cl2 = str_to_float(dffip, cols)
     total = unificar_data(cl1, cl2)
-    if tema == 'OP':
+    if tema == 'OP' or tema =='OP_Reservas':
         total['Valor Neto Pesos'] = total.apply(lambda x: x['Valor Pesos']-x['Valor Reintegrado Pesos'], axis = 1)
     
     total = filter_rubros(total)
