@@ -1,11 +1,12 @@
 import pandas as pd
 from datetime import datetime
 from Load_Data import get_data
-from Modulo_1 import clean_bases, clean_general
+from Modulo_1 import clean_bases, clean_general, clean_general_DIP
 from Modulo_2 import get_pre_second_base
 from Modulo_3 import get_third_base
 from Modulo_4 import get_fourth_base
 from export import export_data
+from Create_Report import datos_excel, ctr_reservas
 
 
 def get_date():
@@ -45,18 +46,21 @@ def run_code():
         try:
             resultados['G'+pair[0]] = clean_bases(bases_de_datos[pair[0]], bases_de_datos[pair[1]], pair[0])
         except:
-            print("Problema con la base de datos: ",pair)
+            print("Problema con la base de datos: ",pair, " en la sección 1")
     
     ## Modulo 3
     try:
         resultados['Base_Compromisos'] = get_third_base(resultados['GRP'], resultados['GOblig'], resultados['GOP'])
         resultados['Base_Compromisos_Reservas'] = get_third_base(resultados['GRP_Reservas'], resultados['GOblig_Reservas'], resultados['GOP_Reservas'])
+        resultados['Reservas_Excel'] = ctr_reservas(resultados['Base_Compromisos_Reservas'])
     except:
+        print("Problemas en la sección 3")
         pass
     ## Modulo 4
     try:
         resultados['BASE_RP_OP'] = get_fourth_base(resultados['GRP'], resultados['GOP'], num_mes)
     except:
+        print("Problemas en la sección 4")
         pass
     ## Si se cargo la Ejecución Presupuestal Agregada corremos el código para hacer el reporte general
     ## Y corremos aquellas funciones que realizan cambios sobre la base general
@@ -65,6 +69,8 @@ def run_code():
     if 'Ejecución_Presupuestal_Agregada' in archivos:
         try:
             resultados['RG'] = clean_general(bases_de_datos['Ejecución_Presupuestal_Agregada'])
+            resultados['RG_Excel'] = clean_general_DIP(bases_de_datos['Ejecución_Presupuestal_Agregada'])
+            resultados['RG_Excel'] = datos_excel(resultados['RG_Excel'])
         except: 
             pass
     

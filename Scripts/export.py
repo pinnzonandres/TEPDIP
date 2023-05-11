@@ -1,6 +1,7 @@
 import pandas as pd
 import easygui
 import os
+from Create_Report import export_report
 
 def set_path(nombre_folder):
     folderpath = easygui.diropenbox(title="Seleccione el lugar donde desea guardar la información")
@@ -14,7 +15,7 @@ def set_path(nombre_folder):
     archivos_modificados_path = os.path.join(nueva_carpeta_path, "Archivos_Modificados")
     os.mkdir(archivos_modificados_path)
     
-    archivos_formato_excel_path = os.path.join(nueva_carpeta_path, "Archivos_Formato_Excel")
+    archivos_formato_excel_path = os.path.join(nueva_carpeta_path, "Reporte_Excel")
     os.mkdir(archivos_formato_excel_path)
     
     return base_tablero_path, archivos_modificados_path, archivos_formato_excel_path
@@ -53,3 +54,5 @@ def export_data(bases_de_datos):
     for pair in zip(bases_tablero,nombres_tablero):
         bases_de_datos[pair[0]].to_excel(writer, sheet_name= pair[1], index= False)
     writer.close()
+    
+    export_report(bases_de_datos, path3, pd.to_datetime(bases_de_datos['dates']['Fecha'].values[0]).month, pd.to_datetime(bases_de_datos['dates']['Fecha'].values[0]).year)

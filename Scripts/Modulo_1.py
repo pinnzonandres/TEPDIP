@@ -112,5 +112,47 @@ def clean_general(df):
                                    'ORDEN PAGO' : 'sum',
                                    'PAGOS' : 'sum'}).reset_index(drop = False)
     
+    
     return RG
 
+def clean_general_DIP(df):
+    rg_2 = df.dropna(subset = df.columns[0])
+    rg_2['Index_Rubro'] = rg_2['RUBRO'].apply(lambda x: x.split("-")[-1])
+    
+    rec_names = {
+    10:'RECURSOS CORRIENTES',
+    11:'OTROS RECURSOS DEL TESORO',
+    16:'FONDOS ESPECIALES'
+    }
+
+    rg_2 = rg_2[(rg_2['Index_Rubro'].str.contains('13|16|17|21|22|25', case = False, regex = True)) & (rg_2['TIPO']=='C')].reset_index(drop = True)
+    rg_2['Descripción Rubro'] = rg_2.apply(lambda x: rubro_names[x['Index_Rubro']], axis = 1)
+    rg_2['Dirección'] = rg_2['Index_Rubro'].apply(lambda x: find_key(dir_names,x))
+    rg_2['Recurso'] = rg_2['REC'].apply(lambda x: rec_names[int(x)])
+    
+    
+    rg_2 = rg_2.groupby(['Index_Rubro','Recurso']).agg({'Dirección':'first',
+                                                    'RUBRO':'first',
+                                                    'Descripción Rubro' : 'first',
+                                                    'APR. INICIAL' : 'sum',
+                                                    'APR. ADICIONADA' : 'sum',
+                                                    'APR. REDUCIDA' : 'sum',
+                                                    'APR. VIGENTE': 'sum',
+                                                    'APR BLOQUEADA': 'sum',
+                                                    'APR. DISPONIBLE' : 'sum',
+                                                    'CDP': 'sum',
+                                                    'COMPROMISO': 'sum',
+                                                    'OBLIGACION' : 'sum',
+                                                    'ORDEN PAGO' : 'sum',
+                                                    'PAGOS' : 'sum'}).reset_index(drop = False)
+    
+    rg_2['% COMPROMETIDO (B/A)'] = rg_2.apply(lambda x: round(int(x['COMPROMISO'])/int(x['APR. VIGENTE']),4), axis = 1)
+    rg_2['APR. DISPONIBLE (A-B)'] = rg_2.apply(lambda x: int(x['APR. VIGENTE']) - int(x['COMPROMISO']), axis = 1)
+    rg_2['% EJECUCIÓN (C/A)'] = rg_2.apply(lambda x: round(int(x['PAGOS'])/int(x['APR. VIGENTE']),4), axis = 1)
+    
+    # Renombramos las columnas
+    rg_2 = rg_2[['RUBRO','Descripción Rubro','APR. INICIAL','APR. REDUCIDA','APR. VIGENTE','CDP','COMPROMISO',
+                 '% COMPROMETIDO (B/A)','APR. DISPONIBLE (A-B)','OBLIGACION','PAGOS','% EJECUCIÓN (C/A)']]
+    
+    rg_2 = rg_2.rename(columns={'Descripción Rubro':'DESCRIPCION','APR. VIGENTE':'APR. VIGENTE (A)','COMPROMISO':'COMPROMISO (B)', 'PAGOS':'PAGOS (C)'})
+    return rg_2
