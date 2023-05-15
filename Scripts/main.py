@@ -5,8 +5,10 @@ from Modulo_1 import clean_bases, clean_general, clean_general_DIP
 from Modulo_2 import get_pre_second_base
 from Modulo_3 import get_third_base
 from Modulo_4 import get_fourth_base
+from Modulo_5 import get_comparativa_2022
 from export import export_data
 from Create_Report import datos_excel, ctr_reservas
+
 
 
 def get_date():
@@ -33,53 +35,70 @@ def run_code():
     num_mes = fecha.month
     str_fecha = fecha.strftime("%Y/%m/%d")
     
-    ## Listamos los archivos que fueron adquiridos
-    archivos = list(bases_de_datos.keys())
+    ## Modulo 1:
+    ### Limpieza de Bases Normales
+    try:
+        resultados['CDP'] = clean_bases(bases_de_datos['CDP'], bases_de_datos['CDP_FIP'],'CDP')
+        resultados['RP'] = clean_bases(bases_de_datos['RP'], bases_de_datos['RP_FIP'], 'RP') 
+        resultados['Oblig'] = clean_bases(bases_de_datos['Oblig'], bases_de_datos['Oblig_FIP'], 'Oblig') 
+        resultados['OP'] = clean_bases(bases_de_datos['OP'], bases_de_datos['OP_FIP'], 'OP') 
+        resultados['RP_Reserva'] = clean_bases(bases_de_datos['RP_Reservas'], bases_de_datos['RP_FIP_Reservas'], 'RP') 
+        resultados['Oblig_Reserva'] = clean_bases(bases_de_datos['Oblig_Reservas'],bases_de_datos['Oblig_FIP_Reservas'], 'Oblig') 
+        resultados['OP_Reserva'] = clean_bases(bases_de_datos['OP_Reservas'], bases_de_datos['OP_FIP_Reservas'], 'OP') 
+        resultados['CDP_22'] = clean_bases(bases_de_datos['CDP_22'], bases_de_datos['CDP_FIP_22'], 'CDP') 
+        resultados['RP_22'] = clean_bases(bases_de_datos['RP_22'], bases_de_datos['RP_FIP_22'], 'RP') 
+        resultados['Oblig_22'] = clean_bases(bases_de_datos['Oblig_22'], bases_de_datos['Oblig_FIP_22'], 'Oblig')    
+        resultados['OP_22'] = clean_bases(bases_de_datos['OP_22'], bases_de_datos['OP_FIP_22'], 'OP') 
+    except:
+        print('Problemas en la sección 1')
+        raise
+
+    ### Limpieza de Reportes Generales
+    try:
+        resultados['RG'] = clean_general(bases_de_datos['Ejecución_Presupuestal_Agregada'])
+        resultados['RG22'] = clean_general(bases_de_datos['Ejecución_Presupuestal_Agregada_22'])
+        
+    except:
+        print("Problemas con los reportes generales")
+        raise
     
-    ## Enlistamos los archivos de FIP y NO FIP
-    no_general_no_fip = [i for i in archivos if i!='Ejecución_Presupuestal_Agregada' and 'FIP' not in i]
-    no_general_si_fip = [i for i in archivos if i!='Ejecución_Presupuestal_Agregada' and 'FIP' in i]
+    ### Creamos los documentos de Excel
+    try:
+        resultados['RG_Excel'] = clean_general_DIP(bases_de_datos['Ejecución_Presupuestal_Agregada'])
+        resultados['RG_Excel'] = datos_excel(resultados['RG_Excel'])
+    except:
+        print('Problemas con la creación de los archivos excel')
+        raise
     
-    ## Para cada pareja de tema + FIP hacemos la limpieza inicial
-    ## Modulo 1
-    for pair in [[i,j] for i,j in zip(no_general_no_fip,no_general_si_fip)]:
-        try:
-            resultados['G'+pair[0]] = clean_bases(bases_de_datos[pair[0]], bases_de_datos[pair[1]], pair[0])
-        except:
-            print("Problema con la base de datos: ",pair, " en la sección 1")
+    ## Modulo 2
+    try:
+        resultados['Base_Rubros'] = get_pre_second_base(resultados['RG'], resultados['CDP'], resultados['RP'], resultados['Oblig'], 
+                                                                      resultados['OP'], num_mes)
     
+        resultados['Base_Rubros_22'] = get_pre_second_base(resultados['RG22'], resultados['CDP_22'], resultados['RP_22'], resultados['Oblig_22'], 
+                                                                      resultados['OP_22'], 12)
+    
+    ## Creación Base Comparativa
+        resultados['Base_Comparativa'] = get_comparativa_2022(resultados['Base_Rubros_22'], resultados['Base_Rubros'])
+    
+    except:
+        print("Problemas en el módulo 2")
+        raise
     ## Modulo 3
     try:
-        resultados['Base_Compromisos'] = get_third_base(resultados['GRP'], resultados['GOblig'], resultados['GOP'])
-        resultados['Base_Compromisos_Reservas'] = get_third_base(resultados['GRP_Reservas'], resultados['GOblig_Reservas'], resultados['GOP_Reservas'])
+        resultados['Base_Compromisos'] = get_third_base(resultados['RP'], resultados['Oblig'], resultados['OP'])
+        resultados['Base_Compromisos_Reservas'] = get_third_base(resultados['RP_Reserva'], resultados['Oblig_Reserva'], resultados['OP_Reserva'])
         resultados['Reservas_Excel'] = ctr_reservas(resultados['Base_Compromisos_Reservas'])
     except:
         print("Problemas en la sección 3")
-        pass
+        raise
     ## Modulo 4
     try:
-        resultados['BASE_RP_OP'] = get_fourth_base(resultados['GRP'], resultados['GOP'], num_mes)
+        resultados['BASE_RP_OP'] = get_fourth_base(resultados['RP'], resultados['OP'], num_mes)
     except:
         print("Problemas en la sección 4")
-        pass
-    ## Si se cargo la Ejecución Presupuestal Agregada corremos el código para hacer el reporte general
-    ## Y corremos aquellas funciones que realizan cambios sobre la base general
-    ## Modulo 1
-    ## Modulo 2
-    if 'Ejecución_Presupuestal_Agregada' in archivos:
-        try:
-            resultados['RG'] = clean_general(bases_de_datos['Ejecución_Presupuestal_Agregada'])
-            resultados['RG_Excel'] = clean_general_DIP(bases_de_datos['Ejecución_Presupuestal_Agregada'])
-            resultados['RG_Excel'] = datos_excel(resultados['RG_Excel'])
-        except: 
-            pass
+        raise
     
-        try:
-            resultados['Base_Rubros'] = get_pre_second_base(resultados['RG'], resultados['GCDP'], resultados['GRP'], resultados['GOblig'], 
-                                                                      resultados['GOP'], num_mes)
-        except:
-            pass
-        
     resultados['dates'] = pd.DataFrame({'Fecha':[fecha.strftime("%Y-%m-%d")]})
     
     return resultados

@@ -1,68 +1,109 @@
 # Se importan las librerías necesarias para el funcionamiento del código
-import inquirer
+import os
 import pandas as pd
-import easygui
-
-# Se definen las preguntas que se mostrarán al usuario a través de la librería inquirer
-# El usuario deberá seleccionar uno o varios archivos a cargar
-questions = [
-  inquirer.Checkbox('Archivos',
-                    message="Seleccione los archivos que va a cargar",
-                    choices=['CDP','RP','Oblig','OP','Reporte General','Reservas']
-                    ),
-]
 
 # Se define un diccionario que mapea cada archivo a sus correspondientes bases de datos
-archivos = {
-    'CDP':[
-        'CDP',
-        'CDP_FIP'
-        ],
-    'RP':[
-        'RP',
-        'RP_FIP'
-        ],
-    'Oblig':[
-        'Oblig',
-        'Oblig_FIP'
-        ],
-    'OP':[
-        'OP',
-        'OP_FIP'
-        ],
-    'Reporte General':'Ejecución_Presupuestal_Agregada',
-    'Reservas':[
-        'RP_Reservas',
-        'RP_FIP_Reservas',
-        'Oblig_Reservas',
-        'Oblig_FIP_Reservas',
-        'OP_Reservas',
-        'OP_FIP_Reservas'
-        ]
-    }
+base_nuevos = {
+    'CDP': {'file' : '1 CDP', 'header' : 0},
+    'CDP_FIP' : {'file' : '5 CDP', 'header' : 0},
+    'RP' : {'file' : '2 RP', 'header' : 0},
+    'RP_FIP' : {'file' : '6 RP', 'header' : 0},
+    'Oblig' : {'file' : '3 Oblig', 'header' : 0},
+    'Oblig_FIP' : {'file' : '7 Oblig','header' : 0},
+    'OP': {'file' : '4 OP', 'header' : 0},
+    'OP_FIP': {'file' : '8 OP', 'header' : 0},
+    'Ejecución_Presupuestal_Agregada': {'file' : 'EjecucionPresupuestalAgregada', 'header' : 3},
+    'Oblig_Reservas': {'file' : '3.1 Oblig', 'header' : 0},
+    'Oblig_FIP_Reservas': {'file' : '7.1 Oblig', 'header': 0},
+    'OP_Reservas': {'file' : '4.1 OP', 'header' : 0},
+    'OP_FIP_Reservas': {'file' : '8.1 OP', 'header' : 0},
+}
 
-# Se define una función que utiliza easygui para abrir un cuadro de diálogo para seleccionar un archivo de la carpeta
-def get_file_dir(dato):
-    path = easygui.fileopenbox(title=f'Seleccione el archivo {dato}')
-    return path
+base_reservas = {
+    'RP_Reservas': {'file' : '2.1 RP', 'header': 0},
+    'RP_FIP_Reservas': {'file' : '6.1 RP', 'header': 0},
+}
 
-# Se define una función que utiliza inquirer para mostrar al usuario la pregunta y se guarda la respuesta en la variable "answers"
-# Se utiliza la variable "archivos" para cargar los archivos correspondientes según la respuesta del usuario
-# Dependiendo del archivo seleccionado, se utiliza la función get_file_dir para abrir un cuadro de diálogo y seleccionar el archivo
-# Para el archivo 'Reporte General' se utiliza pd.read_excel con la opción "header = 3" para cargar los datos del archivo en un DataFrame
-# Para los demás archivos, se utiliza un loop for para iterar sobre cada base de datos y cargarlos en un DataFrame utilizando pd.read_excel
-# Se devuelve un diccionario "dbs" que contiene los DataFrames cargados correspondientes a cada archivo seleccionado por el usuario
+base_2022 = {
+    'CDP_22': {'file' : '1 CDP', 'header' : 0},
+    'CDP_FIP_22' : {'file' : '5 CDP', 'header' : 0},
+    'RP_22' : {'file' : '2 RP', 'header' : 0},
+    'RP_FIP_22' : {'file' : '6 RP', 'header' : 0},
+    'Oblig_22' : {'file' : '3 Oblig', 'header' : 0},
+    'Oblig_FIP_22' : {'file' : '7 Oblig','header' : 0},
+    'OP_22': {'file' : '4 OP', 'header' : 0},
+    'OP_FIP_22': {'file' : '8 OP', 'header' : 0},
+    'Ejecución_Presupuestal_Agregada_22': {'file' : 'EjecucionPresupuestalAgregada', 'header' : 3}
+}
+
+database = {
+    'CDP': None,
+    'CDP_FIP' : None ,
+    'RP' : None ,
+    'RP_FIP' : None ,
+    'Oblig' : None ,
+    'Oblig_FIP' : None ,
+    'OP': None ,
+    'OP_FIP': None ,
+    'Ejecución_Presupuestal_Agregada': None,
+    'Oblig_Reservas': None,
+    'Oblig_FIP_Reservas': None,
+    'OP_Reservas': None,
+    'OP_FIP_Reservas': None,
+    'RP_Reservas': None,
+    'RP_FIP_Reservas': None,
+    'CDP_22': None,
+    'CDP_FIP_22' : None,
+    'RP_22' : None,
+    'RP_FIP_22' : None,
+    'Oblig_22' : None,
+    'Oblig_FIP_22' : None,
+    'OP_22': None,
+    'OP_FIP_22': None,
+    'Ejecución_Presupuestal_Agregada_22': None
+}
+
+# Se define una función para cargar los datos
 def get_data():
-    answers = inquirer.prompt(questions)['Archivos']
-    dbs = {}
-    for answer in answers:
-        if answer == 'Reporte General':
-            path = get_file_dir(dato = archivos[answer])
-            dbs[archivos[answer]] = pd.read_excel(path, header = 3)
-        else:
-            for database in archivos[answer]:
-                path = get_file_dir(dato= database)
-                dbs[database] = pd.read_excel(path)
+    script_dir = os.path.dirname(__file__)
+    ruta_nuevos = os.path.join(script_dir, '..', 'Archivos Base', 'Reportes SIIF')
+    ruta_carpeta_reciente = os.path.join(ruta_nuevos,sorted(os.listdir(ruta_nuevos))[-1])
+    print("Se están cargando los archivos de la carpeta,", ruta_carpeta_reciente)
+    archivos_excel_nuevos = [f for f in os.listdir(ruta_carpeta_reciente) if f.endswith(".xlsx")]
+
+    ruta_rev = os.path.join(script_dir, '..', 'Archivos Base', 'Archivos Reservas')
+    archivos_excel_rev = [f for f in os.listdir(ruta_rev) if f.endswith(".xlsx")]
+
+    ruta_2022 = os.path.join(script_dir, '..', 'Archivos Base', 'Base 2022')
+    archivos_excel_2022 = [f for f in os.listdir(ruta_2022) if f.endswith(".xlsx")]
     
-    return dbs
+    data_nuevos = {i:{'file': os.path.join(ruta_carpeta_reciente, [n for n in archivos_excel_nuevos if base_nuevos[i]['file'] in n][-1]), 'header':base_nuevos[i]['header'] } for i in base_nuevos.keys()}              
+    data_rev = {i: {'file': os.path.join(ruta_rev, [n for n in archivos_excel_rev if base_reservas[i]['file'] in n][-1]),'header':base_reservas[i]['header']} for i in base_reservas.keys()}    
+    data_2022 = {i: {'file': os.path.join(ruta_2022, [n for n in archivos_excel_2022 if base_2022[i]['file'] in n][-1]), 'header': base_2022[i]['header']} for i in base_2022.keys()}    
+    
+    for i in data_nuevos.keys():
+        try:
+            database[i] = pd.read_excel(data_nuevos[i]['file'], header = data_nuevos[i]['header'])
+        except:
+            print("No se pudo cargar la base,",i)
+            raise
+    for i in data_rev.keys():
+        try:
+            database[i] = pd.read_excel(data_rev[i]['file'], header = data_rev[i]['header'])
+        except:
+            print("No se pudo cargar la base,",i)
+            raise
+    for i in data_2022.keys():
+        try:
+            database[i] = pd.read_excel(data_2022[i]['file'], header = data_2022[i]['header'])
+        except:
+            print("No se pudo cargar la base,",i)
+            raise
+        
+    return database
+    
+    
+    
+    
+
 

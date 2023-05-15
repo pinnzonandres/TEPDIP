@@ -63,10 +63,7 @@ def filter_rubros(data):
 cols_to_num ={'CDP':['Valor Inicial','Valor Operaciones','Valor Actual','Saldo por Comprometer'],
               'RP':['Valor Inicial', 'Valor Operaciones', 'Valor Actual', 'Saldo por Utilizar'],
               'Oblig':['Valor Inicial', 'Valor Operaciones','Valor Actual.1','Saldo por Utilizar'],
-              'OP':['Valor Pesos', 'Valor Moneda', 'Valor Reintegrado Pesos', 'Valor Reintegrado Moneda'],
-              'RP_Reservas':['Valor Inicial', 'Valor Operaciones', 'Valor Actual', 'Saldo por Utilizar'],
-              'Oblig_Reservas':['Valor Inicial', 'Valor Operaciones','Valor Actual.1','Saldo por Utilizar'],
-              'OP_Reservas':['Valor Pesos', 'Valor Moneda', 'Valor Reintegrado Pesos', 'Valor Reintegrado Moneda']
+              'OP':['Valor Pesos', 'Valor Moneda', 'Valor Reintegrado Pesos', 'Valor Reintegrado Moneda']
               }
 
 def clean_bases(df1, dffip, tema):
@@ -89,6 +86,7 @@ def clean_general(df):
     rec_names = {
     10:'RECURSOS CORRIENTES',
     11:'OTROS RECURSOS DEL TESORO',
+    13:'RECURSOS DEL CREDITO EXTERNO PREVIA AUTORIZACION',
     16:'FONDOS ESPECIALES'
     }
 
